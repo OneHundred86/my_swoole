@@ -1,5 +1,5 @@
 <?php
-namespace App\Lib;
+namespace App\Lib\Coroutine;
 
 use Swoole\Coroutine;
 

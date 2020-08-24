@@ -7,9 +7,6 @@ return [
     'username' => env('DB_USERNAME'),
     'password' => env('DB_PASSWORD'),
     'charset' => 'utf8mb4',
-    'options' => [
-        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
-    ],
     // 连接池的连接的数量
     'size' => 10,
 ];

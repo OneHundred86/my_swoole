@@ -28,33 +28,12 @@ class HttpServer
         try {
             // var_dump($request->server, $request->header, $request->cookie, $request->get, $request->post);
 
-            # 获取数据库连接
-            $pdo = DBPool::getConn();
-            # 归还数据库连接
-            \Swoole\Coroutine::defer(function() use($pdo) {
-                DBPool::releaseConn($pdo);
-            });
-
-            # 获取redis连接
-            $redis = RedisPool::getConn();
-            # 归还redis连接
-            \Swoole\Coroutine::defer(function() use($redis){
-                RedisPool::releaseConn($redis);
-            });
-
-
-            $statement = $pdo->prepare('SELECT * From user');
-            $result = $statement->execute();
-            if(!$result){
-                throw new RuntimeException('Execute failed');
-            }
-            $users = $statement->fetchAll(\PDO::FETCH_ASSOC);
-
-            // \Swoole\Coroutine::sleep(1);
+            $users = \App\Lib\Coroutine\DB::select("SELECT * FROM `user`");
 
             $data = [
                 'users' => $users,
-                'foo' => $redis->get("foo"),
+                'foo' => \App\Lib\Coroutine\Redis::get("foo"),
+                'foo1' => \App\Lib\Coroutine\Redis::get("foo1"),
             ];
 
             $response->header('Content-Type', 'application/json');
@@ -62,8 +41,10 @@ class HttpServer
         }catch(\Throwable $e){
             var_dump([
                 'error' => $e->getMessage(), 
+                'code' => $e->getCode(),
                 'file' => $e->getFile(),
                 'line' => $e->getLine(),
+                'back_trace' => $e->getTraceAsString(),
             ]);
 
             $response->status(500);
